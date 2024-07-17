@@ -1,4 +1,8 @@
 node() {
+
+    tools {
+        nodejs 'node-18' // Use the label configured in the Global Tool Configuration
+    }
     try {
         String ANSI_GREEN = "\u001B[32m"
         String ANSI_NORMAL = "\u001B[0m"
