@@ -1,8 +1,4 @@
-node() {
-
-    tools {
-        nodejs 'node-18' // Use the label configured in the Global Tool Configuration
-    }
+node {
     try {
         String ANSI_GREEN = "\u001B[32m"
         String ANSI_NORMAL = "\u001B[0m"
@@ -36,44 +32,41 @@ node() {
                     """
                 }
                 echo "artifact_version: " + artifact_version
+            }
 
-                stage('Build') {
+            stage('Build') {
+                // Ensure Node.js is available
+                withEnv(["PATH+NODEJS=${tool name: 'node-18'}/bin"]) {
                     sh """
                         export version_number=${branch_name}
                         export build_number=${commit_hash}
                         rm -rf collection-editor
                         node -v
-                        npm -v                                              
+                        npm -v
                         npm install
                         cd app
                         bower cache clean
                         bower install --force
                         cd ..
-                        #gulp build
                         gulp packageCorePlugins
                         npm run collection-plugins
                         npm run build
                         npm run test
-                        #cp collection-editor.zip collection-editor.zip:${artifact_version}
                     """
-                }
-                stage('ArchiveArtifacts') {
-                    sh """
-                        mkdir collection-editor-artifacts
-                        cp collection-editor.zip collection-editor-artifacts
-                        zip -j  collection-editor-artifacts.zip:${artifact_version}  collection-editor-artifacts/*                      
-                    """
-                    archiveArtifacts "collection-editor-artifacts.zip:${artifact_version}"
-                    sh """echo {\\"artifact_name\\" : \\"collection-editor-artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
-                    archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
-                    currentBuild.description = "${artifact_version}"
                 }
             }
-        }
-    }
-    catch (err) {
-        currentBuild.result = "FAILURE"
-        throw err
-    }
 
-}
+            stage('ArchiveArtifacts') {
+                sh """
+                    mkdir collection-editor-artifacts
+                    cp collection-editor.zip collection-editor-artifacts
+                    zip -j collection-editor-artifacts.zip collection-editor-artifacts/*                      
+                """
+                archiveArtifacts artifacts: "collection-editor-artifacts.zip", fingerprint: true
+                sh """echo {\\"artifact_name\\" : \\"collection-editor-artifacts.zip\\", \\"artifact_version\\" : \\"${artifact_version}\\", \\"node_name\\" : \\"${env.NODE_NAME}\\"} > metadata.json"""
+                archiveArtifacts artifacts: 'metadata.json', onlyIfSuccessful: true
+                currentBuild.description = "${artifact_version}"
+            }
+        }
+    } catch (err
+
