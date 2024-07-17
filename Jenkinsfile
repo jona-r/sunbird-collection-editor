@@ -40,6 +40,7 @@ node() {
                         rm -rf collection-editor
                         node -v
                         npm -v
+                        nvm list
                         nvm use default
                         node -v
                         npm -v                                               
