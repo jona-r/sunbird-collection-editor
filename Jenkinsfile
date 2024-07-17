@@ -39,7 +39,10 @@ node() {
                         export build_number=${commit_hash}
                         rm -rf collection-editor
                         node -v
-                        npm -v                        
+                        npm -v
+                        nvm use default
+                        node -v
+                        npm -v                                               
                         npm install
                         cd app
                         bower cache clean
