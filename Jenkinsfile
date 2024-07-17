@@ -68,5 +68,10 @@ node {
                 currentBuild.description = "${artifact_version}"
             }
         }
-    } catch (err
+    } catch (err) {
+        currentBuild.result = "FAILURE"
+        echo "${ANSI_RED}Build failed due to the following error: ${err}${ANSI_NORMAL}"
+        throw err
+    }
+}
 
